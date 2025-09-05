@@ -16,19 +16,36 @@ FastAPI backend for medical records management with JWT authentication.
 - Docker
 
 ## 📁 Structure
+**Project Structure**
 ```
-MedRec/
+MedRecord/
 ├── app/
-│   ├── main.py          # App entry
-│   ├── database.py      # DB connection
-│   ├── models.py        # DB models
-│   ├── schemas.py       # Pydantic schemas
-│   ├── crud.py          # CRUD operations
-│   └── routes.py        # API routes
-├── requirements.txt
-└── Dockerfile
+│   ├── __pycache__/          # Python cache (ignored)
+│   ├── DB/                   # Database related files
+│   ├── routes/               # API route handlers
+│   ├── config.py             # Configuration settings
+│   ├── crud.py               # Database operations
+│   ├── data.py               # Data utilities
+│   ├── database.py           # Database connection
+│   ├── main.py               # FastAPI application
+│   ├── models.py             # SQLAlchemy models
+│   └── schemas.py            # Pydantic schemas
+├── .env                      # Environment variables (ignored)
+├── docker-compose.yml        # Multi-container setup
+├── requirements.txt          # Dependencies
+└── README.md                 # Project documentation
 ```
 
+**Key Files:**
+- `main.py` - FastAPI app entry point
+- `models.py` - Database table definitions
+- `schemas.py` - Request/response models
+- `crud.py` - Create, Read, Update, Delete operations
+- `database.py` - Database connection setup
+- `docker-compose.yml` - Docker configuration
+- `requirements.txt` - Python dependencies
+
+**Note:** `__pycache__/` and `.env` are excluded from version control via `.gitignore`
 ## 🏃‍♂️ Quick Start
 ```bash
 # 1. Setup
