@@ -1,23 +1,52 @@
-from pydantic import BaseModel, EmailStr
+from enum import Enum
+from typing import Optional
+from fastapi import HTTPException
+from pydantic import BaseModel,EmailStr , field_validator
 
+# ==============================
+# Roles Enum
+# ==============================
+class RoleEnum(str, Enum):
+    doctor = "doctor"
+    admin = "admin"
+    user = "user"
+    patient = "patient"
 
+# ==============================
+# gender Enum
+# ==============================
+class genderEnum(str, Enum):
+    male = "male"
+    female = "female"
+    other = "other"
 # ==============================
 # Users
 # ==============================
+
 class UserBase(BaseModel):
     username: str
-    email: str
-
-
-class UserCreate(UserBase):
+    email: EmailStr
+    is_active: bool = True
+class UserCreate(BaseModel):  # 
+    username: str
+    email: EmailStr
     password: str
+    role: Optional[RoleEnum] = RoleEnum.user
 
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, value):
+        allowed = [e.value for e in RoleEnum]
+        if value not in allowed:
+            raise ValueError(f"Invalid role '{value}'. Allowed: {', '.join(allowed)}")
+        return value
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):  # ← For OUTPUT responses
     id: int
-
-    class Config:
-        from_attributes = True
+    username: str
+    email: str
+    role: str  # User role (e.g., "admin", "user")
+    is_active: bool
 
 
 # ==============================
@@ -26,7 +55,7 @@ class UserResponse(UserBase):
 class PatientBase(BaseModel):
     name: str
     age: int
-
+    gender: genderEnum
 
 class PatientCreate(PatientBase):
     doctor_id: int | None = None
@@ -88,10 +117,12 @@ class DoctorBase(BaseModel):
     name: str
     specialization: str
     years_of_experience: int
-
+    role: RoleEnum = RoleEnum.doctor
 
 class DoctorCreate(DoctorBase):
     pass
+
+
 
 
 class DoctorResponse(DoctorBase):
@@ -100,16 +131,3 @@ class DoctorResponse(DoctorBase):
     class Config:
         from_attributes = True
     
-
-class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-
-class UserCreate(UserBase):
-    password: str
-
-class UserResponse(UserBase):
-    id: int
-
-    class Config:
-        from_attributes = True
