@@ -1,4 +1,4 @@
-# routes/auth.py  (or just auth.py if you keep everything together)
+# routes/auth.py 
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from DB.database import get_db
 import models
 import schemas
 from config import settings
-
+from sqlalchemy import select
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # ------------------- Security helpers -------------------
@@ -28,14 +28,17 @@ def verify_password(plain_password, hashed_password):
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 # ------------------- Routes -------------------
 @router.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+async def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = await db.execute(
+    select(models.User).where(models.User.email == user.email)
+)
+    db_user = db_user.scalar()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -43,16 +46,19 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
         username=user.username,
         email=user.email,
-        hashed_password=hashed_pw
+        hashed_password=hashed_pw 
     )
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    await db.commit()
+    await db.refresh(new_user)
     return new_user
 
 @router.post("/login")
-def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+async def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = await db.execute(
+        select(models.User).where(models.User.email == user.email)
+    )
+    db_user = db_user.scalar()
     if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
