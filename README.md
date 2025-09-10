@@ -45,4 +45,5 @@ uvicorn app.main:app --reload
 ```bash
 docker-compose up -d
 ```
+<img width="2161" height="4260" alt="image" src="https://github.com/user-attachments/assets/cda3541b-8c1c-4c72-8a3e-b36c413c61af" />
 
