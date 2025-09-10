@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
-from fastapi import HTTPException
-from pydantic import BaseModel,EmailStr , field_validator
+from pydantic import BaseModel, EmailStr, field_validator
+from datetime import datetime
 
 # ==============================
 # Roles Enum
@@ -9,125 +9,113 @@ from pydantic import BaseModel,EmailStr , field_validator
 class RoleEnum(str, Enum):
     doctor = "doctor"
     admin = "admin"
-    user = "user"
     patient = "patient"
 
 # ==============================
-# gender Enum
+# Gender Enum
 # ==============================
-class genderEnum(str, Enum):
+class GenderEnum(str, Enum):
     male = "male"
     female = "female"
-    other = "other"
-# ==============================
-# Users
-# ==============================
 
+# ==============================
+# Base User Schema
+# ==============================
 class UserBase(BaseModel):
     username: str
     email: EmailStr
-    is_active: bool = True
-class UserCreate(BaseModel):  # 
-    username: str
-    email: EmailStr
+    role: RoleEnum = RoleEnum.patient
+
+class UserCreate(UserBase):
     password: str
-    role: Optional[RoleEnum] = RoleEnum.user
 
-    @field_validator("role")
-    @classmethod
-    def validate_role(cls, value):
-        allowed = [e.value for e in RoleEnum]
-        if value not in allowed:
-            raise ValueError(f"Invalid role '{value}'. Allowed: {', '.join(allowed)}")
-        return value
-
-class UserResponse(BaseModel):  # ← For OUTPUT responses
+class UserResponse(UserBase):
     id: int
-    username: str
-    email: str
-    role: str  # User role (e.g., "admin", "user")
     is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
+    class Config:
+        from_attributes = True
 
 # ==============================
-# Patients
+# Patient Schema
 # ==============================
-class PatientBase(BaseModel):
+class PatientBase(UserBase):
     name: str
     age: int
-    gender: genderEnum
+    gender: GenderEnum
 
 class PatientCreate(PatientBase):
-    doctor_id: int | None = None
-
+    password: str
+    doctor_id: Optional[int] = None
 
 class PatientResponse(PatientBase):
     id: int
-    doctor_id: int | None = None
+    is_active: Optional[bool] = True
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
 
-
 # ==============================
-# Ailments
-# ==============================
-class AilmentBase(BaseModel):
-    description: str
-    severity: str
-
-
-class AilmentCreate(AilmentBase):
-    pass
-
-
-class AilmentResponse(AilmentBase):
-    id: int
-    patient_id: int
-
-    class Config:
-        from_attributes = True
-
-
-# ==============================
-# Prescriptions
-# ==============================
-class PrescriptionBase(BaseModel):
-    medication_name: str
-    dosage: str
-    instructions: str
-
-
-class PrescriptionCreate(PrescriptionBase):
-    pass
-
-
-class PrescriptionResponse(PrescriptionBase):
-    id: int
-    patient_id: int
-
-    class Config:
-        from_attributes = True
-
-
-# ==============================
-# Doctors
+# Doctor Schema
 # ==============================
 class DoctorBase(BaseModel):
-    name: str
+    username: str
+    email: str
+    name: str          
     specialization: str
     years_of_experience: int
-    role: RoleEnum = RoleEnum.doctor
 
 class DoctorCreate(DoctorBase):
-    pass
-
-
-
+    password: str
 
 class DoctorResponse(DoctorBase):
     id: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
-    
+
+
+# ==============================
+# Medical Record Schema
+# ==============================
+
+class MedicalRecordBase(BaseModel):
+    patient_id: int
+    doctor_id: int
+    diagnosis: str
+    treatment: str | None = None
+
+class MedicalRecordCreate(MedicalRecordBase):
+    pass
+
+class MedicalRecordResponse(MedicalRecordBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# ==============================
+# Token Schema
+# ==============================
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    refresh_token: Optional[str] = None
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+# ==============================
+# Login Schema
+# ==============================
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str

@@ -6,9 +6,9 @@ from DB.database import get_db
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
 
-@router.post("/", response_model=schemas.PatientResponse)
-async def create_patient(patient: schemas.PatientCreate, db: Session = Depends(get_db)):
-    return await crud.create_patient(db, patient)
+# @router.post("/", response_model=schemas.PatientResponse)
+# async def create_patient(patient: schemas.PatientCreate, db: Session = Depends(get_db)):
+#     return await crud.create_patient(db, patient)
 
 
 @router.get("/{patient_id}", response_model=schemas.PatientResponse)
