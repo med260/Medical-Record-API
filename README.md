@@ -1,75 +1,48 @@
+
 # MedRec API
 
-FastAPI backend for medical records management with JWT authentication.
+FastAPI backend for medical records with JWT authentication.
 
 ## 🚀 Features
-
-- **Auth**: JWT security with Doctor/Patient roles
-- **CRUD**: Patients, Doctors, Ailments, Prescriptions
-- **DB**: PostgreSQL with Async SQLAlchemy
-- **Docs**: Auto-generated Swagger at `/docs`
+- JWT auth (Doctor/Patient roles)  
+- Doctors & Patients CRUD (list, get)  
+- PostgreSQL + Async SQLAlchemy  
+- Swagger UI at `/docs`  
 
 ## 🛠️ Tech
+FastAPI · PostgreSQL · SQLAlchemy (Async) · JWT · Docker  
 
-- FastAPI
-- PostgreSQL
-- SQLAlchemy (Async)
-- JWT
-- Docker
-
-## 📁 Structure
-
+## 📦 Installation
 ```
-MedRec/
-├── app/
-│   ├── main.py          # App entry
-│   ├── database.py      # DB connection
-│   ├── models.py        # DB models
-│   ├── schemas.py       # Pydantic schemas
-│   ├── crud.py          # CRUD operations
-│   └── routes.py        # API routes
-├── requirements.txt
-└── Dockerfile
-```
-
-## 🏃‍♂️ Quick Start
-
-```bash
-# 1. Setup
-python -m venv MedRec
-source MedRec/bin/activate  # or `MedRec\Scripts\activate` on Windows
-
-# 2. Install
+git clone https://github.com/med260/Medical-Record-API.git
+cd Medical-Record-API
+python -m venv venv && source venv/bin/activate  # (Windows: venv\Scripts\activate)
 pip install -r requirements.txt
-
-# 3. Run
 uvicorn app.main:app --reload
-```
+````
 
 ## 📚 API Docs
 
-- **Swagger UI**: `http://localhost:8000/docs`
+* Swagger → [http://localhost:8000/docs](http://localhost:8000/docs)
 
-## 🔐 Auth Endpoints
+## 🔐 Auth
 
-- `POST /login` - Login
-- `POST /register` - Register
-- `GET /users/me` - User profile
+* `POST /login` – Login
+* `POST /register` – Register
+* 
+## 👨‍⚕️ Doctors
 
-## 👨‍⚕️ Doctor Endpoints
+* `GET /doctors` – List
+* `GET /doctors/{id}` – Detail
 
-- `GET /doctors` - List doctors
-- `POST /doctors` - Create doctor
-- `GET /doctors/{id}` - Get doctor
+## 👤 Patients
 
-## 👤 Patient Endpoints
-
-- `GET /patients` - List patients
-- `POST /patients` - Create patient
-- `GET /patients/{id}` - Get patient
+* `GET /patients` – List
+* `GET /patients/{id}` – Detail
 
 ## 🐳 Docker
 
 ```bash
 docker-compose up -d
 ```
+
